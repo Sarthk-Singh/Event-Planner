@@ -45,7 +45,7 @@ st.markdown(
     <h1 style='text-align: center; font-size: 3.5em; color: ##FFFFFF; 
                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); 
                font-family: "Segoe UI", sans-serif;'>
-        🎉 Event Manager Dashboard
+        🥂 Event Manager Dashboard 🍾
     </h1>
     """,
     unsafe_allow_html=True
@@ -243,7 +243,7 @@ elif page == "Summary":
     st.markdown(f"**🏦 Total Money Raised:** ₹{total_money_raised}")
     st.markdown(f"**🥂 Total Budget For Orders:** ₹{total_order_budget}")
     st.markdown(f"**🍽️ Total Money Spent by Checked-In Attendees:** ₹{money_spent}")
-    st.markdown(f"**🍽️ Money Remaining from Order Money:** ₹{remaining_order_money}")
+    st.markdown(f"**🤑 Money Remaining from Order Money:** ₹{remaining_order_money}")
 
     summary_data = []
     for _, row in filtered_attendees.iterrows():
