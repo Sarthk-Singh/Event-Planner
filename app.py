@@ -29,10 +29,13 @@ def save_data(attendees, menu, orders):
     orders.to_csv(ORDERS_PATH, index=False)
 
 def generate_qr(attendee_id, name, paid, checked_in):
-    base_url = "https://event-checkin.app/info"
+    base_url = "https://Sarthk-Singh.github.io/Event-Planner/checkin.html"
     url_data = f"{base_url}?id={attendee_id}&name={name}&paid={paid}&checked_in={checked_in}"
-    img = qrcode.make(url_data)
-    img_path = os.path.join(QR_FOLDER, f"{attendee_id}_{name}.png")
+    qr = qrcode.QRCode(box_size=10, border=4)
+    qr.add_data(url_data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white").convert("RGB")  # Convert to PIL.Image.Image
+    img_path = os.path.join("qrcodes", f"{attendee_id}_{name}.png")
     img.save(img_path)
     return img_path, img
 
@@ -75,16 +78,20 @@ if page == "Manage Attendees":
 
     if submitted:
         if new_id and name:
+            # Add attendee to DataFrame
             attendees.loc[len(attendees)] = [new_id, name, age, location, paid, "No"]
+
+            # Generate QR with all required info
             img_path, img = generate_qr(new_id, name, paid, "No")
+
+            # Save updated data
             save_data(attendees, menu, orders)
+
+            # Display QR image + download button
             st.success("✅ Attendee added and QR generated!")
-
-            buf = BytesIO()
-            img.save(buf, format="PNG")
-            buf.seek(0)
-
-            qr_display.image(buf, caption=f"QR for {name}", use_container_width=False)
+            st.image(img, caption=f"QR for {name}", use_container_width=False)
+            with open(img_path, "rb") as f:
+                st.download_button(label="📥 Download QR", data=f, file_name=f"{name}_qr.png", mime="image/png")
         else:
             st.error("❌ ID and Name required")
 
@@ -175,11 +182,12 @@ elif page == "Check-In":
             st.warning("⚠️ Please enter a valid numeric ID.")
 
     st.subheader("📋 All Attendees Overview")
-    st.dataframe(attendees[['name', 'paid', 'checked_in']])
+    st.dataframe(attendees[['id','name', 'paid', 'checked_in']])
 
     st.subheader("💸 Update Payment Status")
     selected_payment_update = st.selectbox("Select Attendee", attendees['name'], key="payment_status")
     new_status = st.selectbox("New Payment Status", ["Yes", "No"], key="new_status")
+    
     if st.button("Update Payment Status"):
         attendees.loc[attendees['name'] == selected_payment_update, 'paid'] = new_status
         save_data(attendees, menu, orders)
