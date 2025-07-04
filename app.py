@@ -154,6 +154,29 @@ elif page == "Orders":
 
     st.subheader("🧾 Order History")
     st.dataframe(attendee_orders)
+    st.subheader("🗑️ Remove Order Item")
+
+    # Re-index to get clean row numbers for dropdown
+    attendee_orders_reset = attendee_orders.reset_index(drop=False)
+
+    if not attendee_orders_reset.empty:
+        # Let user select an order to remove
+        selected_row_index = st.selectbox(
+            "Select an order to remove:",
+            attendee_orders_reset.index,
+            format_func=lambda i: f"{attendee_orders_reset.loc[i, 'item']} x{attendee_orders_reset.loc[i, 'quantity']} = ₹{attendee_orders_reset.loc[i, 'total']}"
+        )
+
+        if st.button("❌ Remove Selected Order"):
+            # Get the actual index in the original orders dataframe
+            original_index = attendee_orders_reset.loc[selected_row_index, 'index']
+            orders.drop(index=original_index, inplace=True)
+            save_data(attendees, menu, orders)
+            st.success("🗑️ Order removed!")
+            st.rerun()
+
+    else:
+        st.info("No orders to remove.")
 
 # Page: Check-In
 elif page == "Check-In":
